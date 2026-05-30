@@ -24,7 +24,7 @@ public class Stroke {
     }
 
     public Path getPath() {
-        return path;
+        return new Path(path);    // 返回副本，确保不可变性
     }
 
     @ColorInt
