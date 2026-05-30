@@ -59,9 +59,9 @@ com.example.doodleapp
 ├── view
 │   └── DrawingView.java           # 自定义绘图 View
 ├── model
-│   ├── PathManager.java           # 管理绘制的路径
+│   ├── Stroke.java                # 笔画数据类（path + 属性）
 │   ├── BrushManager.java          # 马克笔参数管理
-│   └── HistoryManager.java        # 撤销/重做栈
+│   └── HistoryManager.java        # 撤销/重做逻辑
 ├── ui
 │   ├── ColorPickerDialog.java     # 颜色选择对话框
 │   └── BrushSizeDialog.java       # 笔刷粗细对话框
@@ -71,244 +71,64 @@ com.example.doodleapp
 
 ### DrawingView 实现要点
 
-- 继承 `View`（轻量级）或 `SurfaceView`（高性能）
+- 继承 `View` 或 `SurfaceView`
 - 重写 `onTouchEvent()` 处理触摸事件
 - 使用 `Canvas` 和 `Paint` 绘制
+- `Paint` 设置：
+  - `setStrokeCap(Paint.Cap.ROUND)`
+  - `setAlpha(180)` 实现马克笔半透明效果
+  - `setStyle(Paint.Style.STROKE)`
 
-### 触摸事件处理详解
+### 历史记录设计
 
 ```java
-@Override
-public boolean onTouchEvent(MotionEvent event) {
-    float x = event.getX();
-    float y = event.getY();
-
-    switch (event.getAction()) {
-        case MotionEvent.ACTION_DOWN:
-            // 手指按下，开始新路径
-            currentPath = new Path();
-            currentPath.moveTo(x, y);
-            break;
-
-        case MotionEvent.ACTION_MOVE:
-            // 手指移动，添加线段
-            currentPath.lineTo(x, y);
-            invalidate();  // 触发重绘
-            break;
-
-        case MotionEvent.ACTION_UP:
-            // 手指抬起，完成路径
-            currentPath.lineTo(x, y);
-            saveToHistory();  // 保存到历史记录
-            break;
-    }
-    return true;
+// Stroke 数据结构
+class Stroke {
+    Path path;       // 路径轨迹
+    int color;       // 颜色 (ARGB)
+    float width;     // 粗细
+    boolean eraser;  // 是否是橡皮擦
 }
-```
 
-### MotionEvent 动作类型
+// 历史管理
+List<Stroke> strokes = new ArrayList<>();  // 当前画布的所有笔画
+Stack<Stroke> redoStack = new Stack<>();   // 被撤销的笔画
+private static final int MAX_HISTORY = 50;
 
-| 动作 | 含义 | 使用场景 |
-|------|------|---------|
-| `ACTION_DOWN` | 手指首次触摸屏幕 | 开始一条新路径 (moveTo) |
-| `ACTION_MOVE` | 手指在屏幕上移动 | 继续绘制路径 (lineTo) |
-| `ACTION_UP` | 手指离开屏幕 | 完成路径，保存历史 |
-| `ACTION_CANCEL` | 事件被取消（如来电） | 清理当前路径 |
-
-### onDraw() 绘制流程
-
-```java
-@Override
-protected void onDraw(Canvas canvas) {
-    super.onDraw(canvas);
-
-    // 1. 绘制白色背景
-    canvas.drawColor(Color.WHITE);
-
-    // 2. 绘制所有历史路径
-    for (DrawingPath dp : historyPaths) {
-        paint.setColor(dp.isEraser ? Color.WHITE : dp.color);
-        paint.setStrokeWidth(dp.width);
-        paint.setAlpha(dp.isEraser ? 255 : 180);
-        canvas.drawPath(dp.path, paint);
-    }
-
-    // 3. 绘制当前正在画的路径
-    if (currentPath != null) {
-        canvas.drawPath(currentPath, paint);
-    }
-}
-```
-
-**为什么调用 invalidate()？**
-- `invalidate()` 请求系统重新调用 `onDraw()`
-- 每次 `ACTION_MOVE` 都调用，实现实时绘制效果
-
-### Paint 详细配置
-
-```java
-Paint paint = new Paint();
-paint.setColor(currentColor);        // 设置画笔颜色
-paint.setStrokeWidth(currentSize);   // 设置线条粗细（像素）
-paint.setStyle(Paint.Style.STROKE);   // 只画轮廓，不填充
-paint.setStrokeCap(Paint.Cap.ROUND); // 线条端点为圆形
-paint.setAlpha(180);                  // 半透明效果（0-255，180约70%不透明）
-```
-
-**各参数说明：**
-
-| 参数 | 作用 | 可选值说明 |
-|------|------|-----------|
-| `setStyle()` | 绘制模式 | `STROKE`（只画轮廓线）<br>`FILL`（填充形状）<br>`FILL_AND_STROKE`（两者） |
-| `setStrokeCap()` | 线条端点样式 | `ROUND`（圆形端点，圆润自然）<br>`BUTT`（平端点，默认）<br>`SQUARE`（方形突出） |
-| `setAlpha()` | 透明度 | 0=完全透明，255=完全不透明 |
-
-**为什么用 ROUND：**
-```
-BUTT vs ROUND 对比：
-
-BUTT:        ─────                (线条突然结束，有缺口)
-ROUND:       ─────●               (线条圆润，手写更自然)
-```
-对于手写涂鸦，ROUND 让笔画连接更流畅，没有生硬的缺口。
-
-### 撤销/重做详细设计
-
-#### 数据结构
-
-```java
-// 历史记录管理器
-class HistoryManager {
-    private Stack<CanvasState> undoStack = new Stack<>();
-    private Stack<CanvasState> redoStack = new Stack<>();
-    private static final int MAX_HISTORY = 50;
-
-    // 画布状态：包含所有已绘制的路径
-    static class CanvasState {
-        List<DrawingPath> paths = new ArrayList<>();
-
-        // 深拷贝，防止引用被修改
-        CanvasState copy() {
-            CanvasState copy = new CanvasState();
-            for (DrawingPath p : paths) {
-                copy.paths.add(p.copy());
-            }
-            return copy;
-        }
-    }
-
-    // 单条绘图路径
-    static class DrawingPath {
-        Path path;           // Android Path 对象，存储坐标点
-        int color;           // 颜色值（ARGB）
-        float width;         // 笔刷粗细
-        boolean isEraser;    // 是否为橡皮擦模式
-    }
-}
-```
-
-#### 时序图
-
-```
-用户绘制中 → 用户抬起手指 (ACTION_UP)
-    ↓
-保存当前状态到 undoStack
-    ↓
-清空 redoStack（新操作使重做失效）
-    ↓
-检查栈容量，超过50则移除最旧记录
-    ↓
-更新撤销按钮状态（栈非空时可用）
-```
-
-#### 撤销操作流程
-
-```java
+// 撤销：移除最后一笔到 redoStack
 void undo() {
-    // 1. 检查是否可撤销
-    if (undoStack.isEmpty()) return;
-
-    // 2. 保存当前状态到 redoStack（以便重做）
-    redoStack.push(getCurrentState());
-
-    // 3. 从 undoStack 弹出上一个状态
-    CanvasState prevState = undoStack.pop();
-
-    // 4. 重绘画布
-    redrawFromState(prevState);
-
-    // 5. 更新按钮状态
-    updateUndoRedoButtons();
-}
-```
-
-#### 重做操作流程
-
-```java
-void redo() {
-    // 1. 检查是否可重做
-    if (redoStack.isEmpty()) return;
-
-    // 2. 保存当前状态到 undoStack
-    undoStack.push(getCurrentState());
-
-    // 3. 从 redoStack 弹出状态
-    CanvasState nextState = redoStack.pop();
-
-    // 4. 重绘画布
-    redrawFromState(nextState);
-
-    // 5. 更新按钮状态
-    updateUndoRedoButtons();
-}
-```
-
-## 保存图片流程
-
-### 详细步骤
-
-```java
-void saveToGallery() {
-    // 1. 创建与画布等大的 Bitmap
-    Bitmap bitmap = Bitmap.createBitmap(
-        canvasView.getWidth(),
-        canvasView.getHeight(),
-        Bitmap.Config.ARGB_8888
-    );
-
-    // 2. 将画布内容绘制到 Bitmap
-    Canvas canvas = new Canvas(bitmap);
-    canvas.drawColor(Color.WHITE);  // 先填充白色背景
-    canvasView.draw(canvas);        // 绘制所有路径
-
-    // 3. 生成文件名（时间戳）
-    String fileName = "Doodle_" + System.currentTimeMillis() + ".png";
-
-    // 4. 通过 MediaStore 保存到相册
-    ContentValues values = new ContentValues();
-    values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
-    values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-    values.put(MediaStore.Images.Media.RELATIVE_PATH,
-                Environment.DIRECTORY_PICTURES + "/Doodle");
-
-    Uri uri = contentResolver.insert(
-        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-
-    try (OutputStream out = contentResolver.openOutputStream(uri)) {
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+    if (!strokes.isEmpty()) {
+        redoStack.push(strokes.remove(strokes.size() - 1));
     }
+}
 
-    // 5. 通知媒体库更新
-    Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
+// 重做：把 redoStack 的笔画加回 strokes
+void redo() {
+    if (!redoStack.isEmpty()) {
+        strokes.add(redoStack.pop());
+    }
+}
+
+// 新笔画：清空 redoStack，添加新笔画
+void addStroke(Stroke stroke) {
+    redoStack.clear();
+    strokes.add(stroke);
 }
 ```
 
-### 为什么不用 WRITE_EXTERNAL_STORAGE 权限？
+### 马克笔效果
 
-- Android 10 (API 29) 引入**分区存储 (Scoped Storage)**
-- 应用只能访问自己的私有目录和通过 MediaStore 访问公共媒体
-- 保存图片到 `Pictures` 目录通过 MediaStore API，无需额外权限
-- 这比旧版方案（直接写文件路径）更安全、更规范
+- Alpha 值: 180 (约 70% 不透明度)
+- 多次叠加产生渐变效果
+- 支持颜色混合模式
+
+## 保存流程
+
+1. 点击保存按钮
+2. 检查权限 `WRITE_EXTERNAL_STORAGE` (Android 12+ 不需要)
+3. 创建 Bitmap 并绘制画布内容
+4. 使用 `MediaStore` API 保存到相册
+5. 显示保存成功提示
 
 ## 权限需求
 
