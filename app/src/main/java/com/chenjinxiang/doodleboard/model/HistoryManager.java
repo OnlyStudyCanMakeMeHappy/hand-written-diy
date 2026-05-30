@@ -2,6 +2,7 @@ package com.chenjinxiang.doodleboard.model;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 
@@ -29,12 +30,17 @@ public class HistoryManager {
     }
 
     /**
-     * 撤销
+     * 撤销（移除最后一笔）
      */
     public void undo() {
         if (!undoableStrokes.isEmpty()) {
             Stroke stroke = undoableStrokes.removeLast();
-            strokes.remove(stroke);
+
+            // 移除最后一笔（而不是搜索 stroke 对象）
+            if (!strokes.isEmpty() && strokes.get(strokes.size() - 1) == stroke) {
+                strokes.remove(strokes.size() - 1);
+            }
+
             redoStack.addLast(stroke);
         }
     }
@@ -54,10 +60,10 @@ public class HistoryManager {
     }
 
     /**
-     * 获取所有笔画
+     * 获取所有笔画（不可修改列表）
      */
     public List<Stroke> getStrokes() {
-        return strokes;
+        return Collections.unmodifiableList(strokes);
     }
 
     /**
