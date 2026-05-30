@@ -1,7 +1,7 @@
 # 涂鸦板 Android 应用设计文档
 
 **日期**: 2026-05-30
-**版本**: 1.0
+**版本**: 1.1
 
 ## 项目概述
 
@@ -12,133 +12,240 @@
 | 项目 | 选择 |
 |------|------|
 | 语言 | Java |
+| 包名 | `com.chenjinxiang.doodleboard` |
+| 应用名 | 涂鸦板 |
+| 构建 | Gradle (Android Studio 创建) |
 | 最低 SDK | Android 10 (API 29) |
-| UI 框架 | Material Design Components |
 | 目标 SDK | Android 14 (API 34) |
+| UI 框架 | Material Design Components |
+| 屏幕方向 | 固定竖屏 (`portrait`) |
+| 深色模式 | 不支持，固定浅色主题 |
 
 ## 核心功能
 
 | 功能 | 描述 |
 |------|------|
-| 绘图画布 | 全屏画布，背景纯白 |
-| 马克笔 | 半透明笔刷效果，使用 RoundCap |
-| 颜色选择 | 预设色板 + 自定义颜色选择器 |
-| 笔刷粗细 | 滑块调节，范围 1-50px |
-| 橡皮擦 | 可调节粗细的橡皮擦 |
-| 撤销/重做 | 最多 50 步历史记录 |
-| 清空画布 | 确认后清空所有内容 |
-| 保存图片 | 导出为 PNG 格式到设备相册 |
+| 绘图画布 | 全屏画布，背景纯白，尺寸跟随 View |
+| 马克笔 | 半透明笔刷，RoundCap，二阶贝塞尔平滑 |
+| 颜色选择 | 8 个预设颜色 + 自定义颜色选择器 |
+| 笔刷粗细 | 滑块 (1-50px) + 预设档位 (2/8/20/40px) |
+| 橡皮擦 | PorterDuff.Mode.CLEAR 真正擦除 |
+| 撤销/重做 | 最多撤销 50 笔，按钮触发 |
+| 清空画布 | 确认对话框后清空所有笔画和历史 |
+| 保存图片 | PNG 格式，实际画布分辨率，保存到系统 Pictures 目录 |
 
 ## 界面布局
 
 ```
-┌─────────────────────────────────────┐
-│  [≡] 涂鸦板              [⋮]          │  顶部栏
-├─────────────────────────────────────┤
-│                                     │
-│                                     │
-│            画布区域（纯白背景）        │
-│                                     │
-│                                     │
-├─────────────────────────────────────┤
-│  [↶] [↷]  │  ● ● ● │ [⚪] [⚫] [💾]  │  底部工具栏
-│  撤销/重做    颜色      橡皮/保存/清空│
-└─────────────────────────────────────┘
+┌───────────────────────────────────────────────┐
+│  [≡] 涂鸦板                        [⋮]         │  顶部栏
+├───────────────────────────────────────────────┤
+│                                               │
+│                                               │
+│              画布区域（纯白背景）                │
+│                                               │
+│                                               │
+├───────────────────────────────────────────────┤
+│  [↶][↷] │ ●●●●●●●●[+] │ [size] │ [⏺] │ [🗑] │ [💾] │
+│  撤销/重做  预设颜色 更多  粗细   橡皮   清空   保存│
+└───────────────────────────────────────────────┘
 ```
 
 - **顶部栏**: 应用名称、更多菜单
 - **画布**: 占据主要屏幕空间
-- **底部栏**: 撤销/重做、颜色、橡皮擦、保存、清空
-- **侧边面板**: 点击颜色按钮弹出完整调色板和笔刷粗细滑块
+- **底部栏**: 撤销/重做、8个预设颜色+更多按钮、粗细、橡皮擦、清空、保存
+- **选中状态**: 颜色下加点或边框高亮，粗细显示当前数值
+
+## 预设颜色
+
+| 颜色 | RGB |
+|------|-----|
+| 黑色 | #000000 |
+| 红色 | #FF0000 |
+| 蓝色 | #0000FF |
+| 绿色 | #00FF00 |
+| 黄色 | #FFFF00 |
+| 橙色 | #FFA500 |
+| 紫色 | #800080 |
+| 白色 | #FFFFFF |
 
 ## 架构设计
 
 ```
-com.example.doodleapp
+com.chenjinxiang.doodleboard
 ├── MainActivity.java
 ├── view
 │   └── DrawingView.java           # 自定义绘图 View
 ├── model
-│   ├── Stroke.java                # 笔画数据类（path + 属性）
+│   ├── Stroke.java                # 笔画数据类
 │   ├── BrushManager.java          # 马克笔参数管理
 │   └── HistoryManager.java        # 撤销/重做逻辑
 ├── ui
-│   ├── ColorPickerDialog.java     # 颜色选择对话框
+│   ├── ColorPickerDialog.java     # 自定义颜色选择对话框
 │   └── BrushSizeDialog.java       # 笔刷粗细对话框
 └── utils
     └── FileSaver.java             # 保存图片到相册
 ```
 
-### DrawingView 实现要点
+## 数据模型
 
-- 继承 `View`
-- 重写 `onTouchEvent()` 处理触摸事件
-- 重写 `onDraw()` 绘制所有 Stroke
-- `Paint` 设置：
-  - `setStrokeCap(Paint.Cap.ROUND)`
-  - `setAlpha(stroke.alpha)` 每笔独立透明度
-  - `setStyle(Paint.Style.STROKE)`
-
-### 橡皮擦实现
-
-使用离屏 Bitmap + `PorterDuff.Mode.CLEAR` 真正擦除像素，适合半透明马克笔效果。
+### Stroke（不可变）
 
 ```java
-private Bitmap canvasBitmap;  // 离屏 Bitmap
-private Canvas bitmapCanvas;  // 对应的 Canvas
+public class Stroke {
+    private final Path path;           // 路径轨迹
+    @ColorInt private final int color;  // 颜色 (RGB)
+    private final int alpha;            // 透明度 (0-255)
+    private final float width;          // 粗细
+    private final boolean eraser;       // 是否是橡皮擦
 
-// 初始化
-void initBitmap() {
-    canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-    bitmapCanvas = new Canvas(canvasBitmap);
-    bitmapCanvas.drawColor(Color.WHITE);
-}
-
-// 绘制时
-void drawStroke(Stroke stroke, Canvas canvas) {
-    if (stroke.eraser) {
-        paint.setColor(Color.TRANSPARENT);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-        paint.setAlpha(255);
-    } else {
-        paint.setXfermode(null);
-        paint.setColor(stroke.color);
-        paint.setAlpha(stroke.alpha);
+    public Stroke(Path path, @ColorInt int color, int alpha, float width, boolean eraser) {
+        this.path = path;
+        this.color = color;
+        this.alpha = alpha;
+        this.width = width;
+        this.eraser = eraser;
     }
-    // ... 绘制逻辑
+
+    // Getters...
 }
 ```
 
-注意：`Mode.CLEAR` 会将像素变为透明，擦除后需要重新绘制底层白色背景。
+## DrawingView 实现
 
-### 历史记录设计
+### 初始化
 
 ```java
-// Stroke 数据结构
-class Stroke {
-    Path path;       // 路径轨迹
-    int color;       // 颜色 (RGB)
-    int alpha;       // 透明度 (0-255)
-    float width;     // 粗细
-    boolean eraser;  // 是否是橡皮擦
-}
+public class DrawingView extends View {
+    private Bitmap canvasBitmap;
+    private Canvas bitmapCanvas;
+    private Paint paint;
+    private Path currentPath;
+    private HistoryManager historyManager;
+    private BrushManager brushManager;
 
-// 历史管理
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        // 创建离屏 Bitmap
+        canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        bitmapCanvas = new Canvas(canvasBitmap);
+        bitmapCanvas.drawColor(Color.WHITE);
+
+        // 初始化 Paint
+        paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStyle(Paint.Style.STROKE);
+    }
+}
+```
+
+### 触摸处理
+
+```java
+@Override
+public boolean onTouchEvent(MotionEvent event) {
+    switch (event.getAction()) {
+        case MotionEvent.ACTION_DOWN:
+            currentPath = new Path();
+            currentPath.moveTo(event.getX(), event.getY());
+            break;
+
+        case MotionEvent.ACTION_MOVE:
+            // 二阶贝塞尔平滑处理
+            // ...
+            invalidate();  // 实时刷新
+            break;
+
+        case MotionEvent.ACTION_UP:
+            // 创建 Stroke 并保存
+            Stroke stroke = new Stroke(
+                currentPath,
+                brushManager.getColor(),
+                brushManager.getAlpha(),
+                brushManager.getWidth(),
+                brushManager.isEraser()
+            );
+            historyManager.addStroke(stroke);
+            invalidate();
+            break;
+    }
+    return true;
+}
+```
+
+### 绘制
+
+```java
+@Override
+protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
+
+    // 1. 绘制白色背景
+    canvas.drawColor(Color.WHITE);
+
+    // 2. 绘制所有笔画
+    for (Stroke stroke : historyManager.getStrokes()) {
+        if (stroke.isEraser()) {
+            paint.setColor(Color.TRANSPARENT);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            paint.setAlpha(255);
+        } else {
+            paint.setXfermode(null);
+            paint.setColor(stroke.getColor());
+            paint.setAlpha(stroke.getAlpha());
+        }
+        paint.setStrokeWidth(stroke.getWidth());
+        canvas.drawPath(stroke.getPath(), paint);
+    }
+
+    // 3. 绘制当前正在画的笔画
+    if (currentPath != null) {
+        paint.setXfermode(null);
+        paint.setColor(brushManager.getColor());
+        paint.setAlpha(brushManager.getAlpha());
+        paint.setStrokeWidth(brushManager.getWidth());
+        canvas.drawPath(currentPath, paint);
+    }
+}
+```
+
+### 二阶贝塞尔平滑
+
+```java
+private void smoothPath(MotionEvent event) {
+    float x = event.getX();
+    float y = event.getY();
+
+    // 使用上一点和当前点的中点作为控制点
+    if (event.getAction() == MotionEvent.ACTION_MOVE) {
+        float midX = (lastX + x) / 2;
+        float midY = (lastY + y) / 2;
+        currentPath.quadTo(lastX, lastY, midX, midY);
+    }
+
+    lastX = x;
+    lastY = y;
+}
+```
+
+## HistoryManager 实现
+
+```java
 public class HistoryManager {
     private static final int MAX_UNDO = 50;
 
-    private final List<Stroke> strokes = new ArrayList<>();           // 全部笔画
-    private final Deque<Stroke> undoableStrokes = new ArrayDeque<>(); // 可撤销的笔画
-    private final Deque<Stroke> redoStack = new ArrayDeque<>();       // 被撤销的笔画
+    private final List<Stroke> strokes = new ArrayList<>();
+    private final Deque<Stroke> undoableStrokes = new ArrayDeque<>();
+    private final Deque<Stroke> redoStack = new ArrayDeque<>();
 
     public void addStroke(Stroke stroke) {
         strokes.add(stroke);
-
         undoableStrokes.addLast(stroke);
         if (undoableStrokes.size() > MAX_UNDO) {
             undoableStrokes.removeFirst();
         }
-
         redoStack.clear();
     }
 
@@ -154,7 +261,6 @@ public class HistoryManager {
         if (!redoStack.isEmpty()) {
             Stroke stroke = redoStack.removeLast();
             strokes.add(stroke);
-
             undoableStrokes.addLast(stroke);
             if (undoableStrokes.size() > MAX_UNDO) {
                 undoableStrokes.removeFirst();
@@ -173,40 +279,145 @@ public class HistoryManager {
     public boolean canRedo() {
         return !redoStack.isEmpty();
     }
+
+    public void clear() {
+        strokes.clear();
+        undoableStrokes.clear();
+        redoStack.clear();
+    }
 }
 ```
 
-**行为示例**：
-```
-用户画了 100 笔：
-- 画布上保留 100 笔
-- 只能撤销最近 50 笔
-- 前 50 笔已"固化"，不能撤销，但不会消失
-```
+## BrushManager 实现
 
-### 马克笔效果
+```java
+public class BrushManager {
+    // 预设颜色
+    private static final int[] PRESET_COLORS = {
+        Color.BLACK, Color.RED, Color.BLUE, Color.GREEN,
+        Color.YELLOW, 0xFFFFA500, 0xFF800080, Color.WHITE
+    };
 
-- Alpha 值: 180 (约 70% 不透明度)
-- 多次叠加产生渐变效果
-- 支持颜色混合模式
+    // 预设粗细
+    private static final float[] PRESET_SIZES = {2f, 8f, 20f, 40f};
+
+    private int color = Color.BLACK;
+    private int alpha = 180;  // 马克笔半透明
+    private float width = 8f;
+    private boolean eraser = false;
+
+    // Getters and Setters...
+    public void setPresetColor(int index) {
+        if (index >= 0 && index < PRESET_COLORS.length) {
+            this.color = PRESET_COLORS[index];
+        }
+    }
+
+    public void setPresetSize(int index) {
+        if (index >= 0 && index < PRESET_SIZES.length) {
+            this.width = PRESET_SIZES[index];
+        }
+    }
+}
+```
 
 ## 保存流程
 
+### 文件命名
+
+格式：`涂鸦_YYYY-MM-DD_HHMMSS.png`
+
+示例：`涂鸦_2026-05-30_143025.png`
+
+### 保存步骤
+
 1. 点击保存按钮
-2. 检查权限 `WRITE_EXTERNAL_STORAGE` (Android 12+ 不需要)
-3. 创建 Bitmap 并绘制画布内容
-4. 使用 `MediaStore` API 保存到相册
-5. 显示保存成功提示
+2. 从 DrawingView 获取 Bitmap
+3. 使用 MediaStore API 保存到系统 Pictures 目录
+4. 显示 Snackbar："已保存到相册" + "查看"按钮
+
+### FileSaver 实现
+
+```java
+public class FileSaver {
+    public static void saveToGallery(Context context, Bitmap bitmap) {
+        String filename = "涂鸦_" + getTimestamp() + ".png";
+
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, filename);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
+
+        Uri uri = context.getContentResolver().insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+        try (OutputStream out = context.getContentResolver().openOutputStream(uri)) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String getTimestamp() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HHmmss", Locale.getDefault());
+        return sdf.format(new Date());
+    }
+}
+```
 
 ## 权限需求
 
-| 权限 | 用途 | 版本 |
-|------|------|------|
-| 无 | Android 10+ 使用 scoped storage，无需额外权限 |
+Android 10+ (API 29+) 使用 Scoped Storage，使用 MediaStore API 无需声明任何权限。
+
+## 清空画布确认
+
+```java
+private void showClearDialog() {
+    new AlertDialog.Builder(this)
+        .setTitle("清空画布")
+        .setMessage("确定要清空所有内容吗？此操作不可撤销。")
+        .setPositiveButton("清空", (dialog, which) -> {
+            historyManager.clear();
+            drawingView.invalidate();
+        })
+        .setNegativeButton("取消", null)
+        .show();
+}
+```
+
+## 橡皮擦视觉反馈
+
+1. 底部工具栏橡皮擦按钮高亮
+2. 显示 Toast："橡皮擦模式"
+3. （后续）光标变为圆形指示当前粗细
+
+## 粗细调节 UI
+
+### 优先实现：对话框数值预览
+
+```
+┌─────────────────────┐
+│   笔刷粗细          │
+├─────────────────────┤
+│  [●]━━━━━━━━━━○     │  滑块
+│  当前粗细: 8px      │  数值显示
+│                     │
+│  [2px] [8px] [20px] │  预设档位
+│  [40px]             │
+├─────────────────────┤
+│  [取消]     [确定]  │
+└─────────────────────┘
+```
+
+### 后续实现：画布圆圈预览
+
+在画布中央显示一个圆圈，实时反映当前粗细。
 
 ## 后续扩展可能
 
+- 笔刷粗细画布圆圈预览
 - 更多笔刷类型（钢笔、荧光笔）
-- 图层支持
 - 自定义背景模板
 - 压感支持
+- 深色模式
+- 横竖屏旋转支持
