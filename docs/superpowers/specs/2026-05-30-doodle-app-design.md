@@ -81,19 +81,35 @@ com.example.doodleapp
 
 ### 橡皮擦实现
 
-**MVP 方案**（第一版）：使用白色画笔模拟橡皮擦，适合纯白背景画布。
+使用离屏 Bitmap + `PorterDuff.Mode.CLEAR` 真正擦除像素，适合半透明马克笔效果。
 
 ```java
-if (stroke.eraser) {
-    paint.setColor(Color.WHITE);
-    paint.setAlpha(255);
-} else {
-    paint.setColor(stroke.color);
-    paint.setAlpha(stroke.alpha);
+private Bitmap canvasBitmap;  // 离屏 Bitmap
+private Canvas bitmapCanvas;  // 对应的 Canvas
+
+// 初始化
+void initBitmap() {
+    canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    bitmapCanvas = new Canvas(canvasBitmap);
+    bitmapCanvas.drawColor(Color.WHITE);
+}
+
+// 绘制时
+void drawStroke(Stroke stroke, Canvas canvas) {
+    if (stroke.eraser) {
+        paint.setColor(Color.TRANSPARENT);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        paint.setAlpha(255);
+    } else {
+        paint.setXfermode(null);
+        paint.setColor(stroke.color);
+        paint.setAlpha(stroke.alpha);
+    }
+    // ... 绘制逻辑
 }
 ```
 
-**后续扩展**：若需支持透明背景或多种背景色，使用离屏 Bitmap + `PorterDuff.Mode.CLEAR` 真正擦除像素。
+注意：`Mode.CLEAR` 会将像素变为透明，擦除后需要重新绘制底层白色背景。
 
 ### 历史记录设计
 
