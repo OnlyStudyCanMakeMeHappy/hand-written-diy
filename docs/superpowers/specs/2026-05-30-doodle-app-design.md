@@ -92,33 +92,64 @@ class Stroke {
 }
 
 // 历史管理
-List<Stroke> strokes = new ArrayList<>();  // 当前画布的所有笔画
-Stack<Stroke> redoStack = new Stack<>();   // 被撤销的笔画
-private static final int MAX_UNDO = 50;
+public class HistoryManager {
+    private static final int MAX_UNDO = 50;
 
-// 撤销：移除最后一笔到 redoStack
-void undo() {
-    if (!strokes.isEmpty()) {
-        redoStack.push(strokes.remove(strokes.size() - 1));
-        // 限制 redoStack 大小
-        if (redoStack.size() > MAX_UNDO) {
-            redoStack.remove(0);
+    private final List<Stroke> strokes = new ArrayList<>();           // 全部笔画
+    private final Deque<Stroke> undoableStrokes = new ArrayDeque<>(); // 可撤销的笔画
+    private final Deque<Stroke> redoStack = new ArrayDeque<>();       // 被撤销的笔画
+
+    public void addStroke(Stroke stroke) {
+        strokes.add(stroke);
+
+        undoableStrokes.addLast(stroke);
+        if (undoableStrokes.size() > MAX_UNDO) {
+            undoableStrokes.removeFirst();
+        }
+
+        redoStack.clear();
+    }
+
+    public void undo() {
+        if (!undoableStrokes.isEmpty()) {
+            Stroke stroke = undoableStrokes.removeLast();
+            strokes.remove(stroke);
+            redoStack.addLast(stroke);
         }
     }
-}
 
-// 重做：把 redoStack 的笔画加回 strokes
-void redo() {
-    if (!redoStack.isEmpty()) {
-        strokes.add(redoStack.pop());
+    public void redo() {
+        if (!redoStack.isEmpty()) {
+            Stroke stroke = redoStack.removeLast();
+            strokes.add(stroke);
+
+            undoableStrokes.addLast(stroke);
+            if (undoableStrokes.size() > MAX_UNDO) {
+                undoableStrokes.removeFirst();
+            }
+        }
+    }
+
+    public List<Stroke> getStrokes() {
+        return strokes;
+    }
+
+    public boolean canUndo() {
+        return !undoableStrokes.isEmpty();
+    }
+
+    public boolean canRedo() {
+        return !redoStack.isEmpty();
     }
 }
+```
 
-// 新笔画：清空 redoStack，添加新笔画
-void addStroke(Stroke stroke) {
-    redoStack.clear();
-    strokes.add(stroke);
-}
+**行为示例**：
+```
+用户画了 100 笔：
+- 画布上保留 100 笔
+- 只能撤销最近 50 笔
+- 前 50 笔已"固化"，不能撤销，但不会消失
 ```
 
 ### 马克笔效果
