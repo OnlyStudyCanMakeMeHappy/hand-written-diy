@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.chenjinxiang.doodleboard.model.BrushManager;
@@ -91,5 +92,65 @@ public class DrawingView extends View {
     public void clear() {
         historyManager.clear();
         invalidate();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        float x = event.getX();
+        float y = event.getY();
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                handleActionDown(x, y);
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                handleActionMove(x, y);
+                break;
+
+            case MotionEvent.ACTION_UP:
+                handleActionUp();
+                break;
+        }
+
+        return true;
+    }
+
+    private void handleActionDown(float x, float y) {
+        currentPath = new Path();
+        currentPath.moveTo(x, y);
+        lastX = x;
+        lastY = y;
+    }
+
+    private void handleActionMove(float x, float y) {
+        if (currentPath != null) {
+            // 二阶贝塞尔平滑处理
+            float midX = (lastX + x) / 2;
+            float midY = (lastY + y) / 2;
+            currentPath.quadTo(lastX, lastY, midX, midY);
+
+            lastX = x;
+            lastY = y;
+
+            invalidate(); // 实时刷新
+        }
+    }
+
+    private void handleActionUp() {
+        if (currentPath != null) {
+            // 保存笔画
+            Stroke stroke = new Stroke(
+                currentPath,
+                brushManager.getColor(),
+                brushManager.getAlpha(),
+                brushManager.getWidth(),
+                brushManager.isEraser()
+            );
+            historyManager.addStroke(stroke);
+
+            currentPath = null;
+            invalidate();
+        }
     }
 }
