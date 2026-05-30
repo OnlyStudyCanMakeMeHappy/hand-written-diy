@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">涂鸦板</string>
+
+    <!-- 工具栏 -->
+    <string name="undo">撤销</string>
+    <string name="redo">重做</string>
+    <string name="eraser">橡皮擦</string>
+    <string name="clear">清空</string>
+    <string name="save">保存</string>
+    <string name="more_colors">更多颜色</string>
+    <string name="brush_size">笔刷粗细</string>
+
+    <!-- 对话框 -->
+    <string name="clear_dialog_title">清空画布</string>
+    <string name="clear_dialog_message">确定要清空所有内容吗？此操作不可撤销。</string>
+    <string name="clear_confirm">清空</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确定</string>
+
+    <!-- 提示信息 -->
+    <string name="eraser_mode">橡皮擦模式</string>
+    <string name="draw_mode">绘图模式</string>
+    <string name="saved_to_gallery">已保存到相册</string>
+    <string name="view">查看</string>
+    <string name="current_size">当前粗细: %dpx</string>
+
+    <!-- 颜色选择 -->
+    <string name="select_color">选择颜色</string>
+</resources>

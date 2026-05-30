@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 预设画笔颜色 -->
+    <color name="brush_black">#000000</color>
+    <color name="brush_red">#FF0000</color>
+    <color name="brush_blue">#0000FF</color>
+    <color name="brush_green">#00FF00</color>
+    <color name="brush_yellow">#FFFF00</color>
+    <color name="brush_orange">#FFA500</color>
+    <color name="brush_purple">#800080</color>
+    <color name="brush_brown">#8B4513</color>
+
+    <!-- 主题颜色 -->
+    <color name="primary">#6200EE</color>
+    <color name="primary_dark">#3700B3</color>
+    <color name="accent">#03DAC5</color>
+    <color name="canvas_white">#FFFFFF</color>
+    <color name="toolbar_bg">#FFFFFF</color>
+    <color name="toolbar_stroke">#E0E0E0</color>
+    <color name="selected_indicator">#6200EE</color>
+</resources>

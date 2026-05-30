@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 工具栏 -->
+    <dimen name="toolbar_height">56dp</dimen>
+    <dimen name="toolbar_padding">8dp</dimen>
+    <dimen name="button_size">48dp</dimen>
+
+    <!-- 颜色选择器 -->
+    <dimen name="color_circle_size">32dp</dimen>
+    <dimen name="color_circle_selected_stroke">3dp</dimen>
+    <dimen name="color_spacing">8dp</dimen>
+
+    <!-- 对话框 -->
+    <dimen name="dialog_padding">24dp</dimen>
+    <dimen name="dialog_button_height">48dp</dimen>
+
+    <!-- 笔刷 -->
+    <dimen name="brush_size_indicator">80dp</dimen>
+</resources>
