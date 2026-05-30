@@ -79,6 +79,22 @@ com.example.doodleapp
   - `setAlpha(stroke.alpha)` 每笔独立透明度
   - `setStyle(Paint.Style.STROKE)`
 
+### 橡皮擦实现
+
+**MVP 方案**（第一版）：使用白色画笔模拟橡皮擦，适合纯白背景画布。
+
+```java
+if (stroke.eraser) {
+    paint.setColor(Color.WHITE);
+    paint.setAlpha(255);
+} else {
+    paint.setColor(stroke.color);
+    paint.setAlpha(stroke.alpha);
+}
+```
+
+**后续扩展**：若需支持透明背景或多种背景色，使用离屏 Bitmap + `PorterDuff.Mode.CLEAR` 真正擦除像素。
+
 ### 历史记录设计
 
 ```java
