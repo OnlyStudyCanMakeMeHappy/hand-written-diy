@@ -220,7 +220,7 @@ git commit -m "feat: initialize project structure and Gradle configuration"
     <color name="brush_yellow">#FFFF00</color>
     <color name="brush_orange">#FFA500</color>
     <color name="brush_purple">#800080</color>
-    <color name="brush_white">#FFFFFF</color>
+    <color name="brush_brown">#8B4513</color>
 
     <!-- 主题颜色 -->
     <color name="primary">#6200EE</color>
@@ -458,7 +458,7 @@ public class Stroke {
     private final boolean eraser;
 
     public Stroke(Path path, @ColorInt int color, int alpha, float width, boolean eraser) {
-        this.path = path;
+        this.path = new Path(path);     // 深拷贝 Path，确保不可变性
         this.color = color;
         this.alpha = alpha;
         this.width = width;
@@ -618,16 +618,16 @@ import android.graphics.Color;
  * 管理笔刷颜色、粗细、透明度和橡皮擦状态
  */
 public class BrushManager {
-    // 预设颜色（黑、红、蓝、绿、黄、橙、紫、白）
+    // 预设颜色（黑、红、蓝、绿、黄、橙、紫、棕）
     public static final int[] PRESET_COLORS = {
-        Color.BLACK,      // 0
-        Color.RED,        // 1
-        Color.BLUE,       // 2
-        Color.GREEN,      // 3
-        Color.YELLOW,     // 4
-        0xFFFFA500,       // 5 - 橙色
-        0xFF800080,       // 6 - 紫色
-        Color.WHITE       // 7
+        Color.BLACK,       // 0
+        Color.RED,         // 1
+        Color.BLUE,        // 2
+        Color.GREEN,       // 3
+        Color.YELLOW,      // 4
+        0xFFFFA500,        // 5 - 橙色
+        0xFF800080,        // 6 - 紫色
+        0xFF8B4513         // 7 - 棕色
     };
 
     // 预设粗细档位
@@ -724,13 +724,10 @@ git commit -m "feat: add BrushManager with presets"
 package com.chenjinxiang.doodleboard.view;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -741,12 +738,10 @@ import com.chenjinxiang.doodleboard.model.Stroke;
 /**
  * 绘图 View
  * 处理触摸事件和绘制逻辑
+ * 使用纯 Stroke 方案，每次 onDraw 重绘所有笔画
  */
 public class DrawingView extends View {
-    private Bitmap canvasBitmap;
-    private Canvas bitmapCanvas;
     private Paint paint;
-
     private Path currentPath;
     private float lastX, lastY;
 
@@ -774,18 +769,6 @@ public class DrawingView extends View {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        // 创建离屏 Bitmap
-        if (w > 0 && h > 0) {
-            canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            bitmapCanvas = new Canvas(canvasBitmap);
-            bitmapCanvas.drawColor(Color.WHITE);
-        }
-    }
-
-    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
@@ -799,9 +782,8 @@ public class DrawingView extends View {
 
         // 3. 绘制当前正在画的笔画
         if (currentPath != null) {
-            paint.setXfermode(null);
-            paint.setColor(brushManager.getColor());
-            paint.setAlpha(brushManager.getAlpha());
+            paint.setColor(brushManager.isEraser() ? Color.WHITE : brushManager.getColor());
+            paint.setAlpha(brushManager.isEraser() ? 255 : brushManager.getAlpha());
             paint.setStrokeWidth(brushManager.getWidth());
             canvas.drawPath(currentPath, paint);
         }
@@ -809,11 +791,10 @@ public class DrawingView extends View {
 
     private void drawStroke(Canvas canvas, Stroke stroke) {
         if (stroke.isEraser()) {
-            paint.setColor(Color.TRANSPARENT);
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            // MVP: 橡皮擦使用白色画笔模拟
+            paint.setColor(Color.WHITE);
             paint.setAlpha(255);
         } else {
-            paint.setXfermode(null);
             paint.setColor(stroke.getColor());
             paint.setAlpha(stroke.getAlpha());
         }
@@ -832,9 +813,6 @@ public class DrawingView extends View {
 
     public void clear() {
         historyManager.clear();
-        if (bitmapCanvas != null) {
-            bitmapCanvas.drawColor(Color.WHITE);
-        }
         invalidate();
     }
 }

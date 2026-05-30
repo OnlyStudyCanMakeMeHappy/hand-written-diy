@@ -67,7 +67,7 @@
 | 黄色 | #FFFF00 |
 | 橙色 | #FFA500 |
 | 紫色 | #800080 |
-| 白色 | #FFFFFF |
+| 棕色 | #8B4513 |
 
 ## 架构设计
 
@@ -93,14 +93,14 @@ com.chenjinxiang.doodleboard
 
 ```java
 public class Stroke {
-    private final Path path;           // 路径轨迹
+    private final Path path;           // 路径轨迹（深拷贝）
     @ColorInt private final int color;  // 颜色 (RGB)
     private final int alpha;            // 透明度 (0-255)
     private final float width;          // 粗细
     private final boolean eraser;       // 是否是橡皮擦
 
     public Stroke(Path path, @ColorInt int color, int alpha, float width, boolean eraser) {
-        this.path = path;
+        this.path = new Path(path);     // 深拷贝 Path，确保不可变性
         this.color = color;
         this.alpha = alpha;
         this.width = width;
@@ -117,22 +117,16 @@ public class Stroke {
 
 ```java
 public class DrawingView extends View {
-    private Bitmap canvasBitmap;
-    private Canvas bitmapCanvas;
     private Paint paint;
     private Path currentPath;
     private HistoryManager historyManager;
     private BrushManager brushManager;
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        // 创建离屏 Bitmap
-        canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        bitmapCanvas = new Canvas(canvasBitmap);
-        bitmapCanvas.drawColor(Color.WHITE);
+    public DrawingView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        historyManager = new HistoryManager();
+        brushManager = new BrushManager();
 
-        // 初始化 Paint
         paint = new Paint();
         paint.setAntiAlias(true);
         paint.setStrokeCap(Paint.Cap.ROUND);
@@ -185,29 +179,31 @@ protected void onDraw(Canvas canvas) {
     // 1. 绘制白色背景
     canvas.drawColor(Color.WHITE);
 
-    // 2. 绘制所有笔画
+    // 2. 绘制所有已保存的笔画
     for (Stroke stroke : historyManager.getStrokes()) {
-        if (stroke.isEraser()) {
-            paint.setColor(Color.TRANSPARENT);
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-            paint.setAlpha(255);
-        } else {
-            paint.setXfermode(null);
-            paint.setColor(stroke.getColor());
-            paint.setAlpha(stroke.getAlpha());
-        }
-        paint.setStrokeWidth(stroke.getWidth());
-        canvas.drawPath(stroke.getPath(), paint);
+        drawStroke(canvas, stroke);
     }
 
     // 3. 绘制当前正在画的笔画
     if (currentPath != null) {
-        paint.setXfermode(null);
-        paint.setColor(brushManager.getColor());
-        paint.setAlpha(brushManager.getAlpha());
+        paint.setColor(brushManager.isEraser() ? Color.WHITE : brushManager.getColor());
+        paint.setAlpha(brushManager.isEraser() ? 255 : brushManager.getAlpha());
         paint.setStrokeWidth(brushManager.getWidth());
         canvas.drawPath(currentPath, paint);
     }
+}
+
+private void drawStroke(Canvas canvas, Stroke stroke) {
+    if (stroke.isEraser()) {
+        // MVP: 橡皮擦使用白色画笔模拟
+        paint.setColor(Color.WHITE);
+        paint.setAlpha(255);
+    } else {
+        paint.setColor(stroke.getColor());
+        paint.setAlpha(stroke.getAlpha());
+    }
+    paint.setStrokeWidth(stroke.getWidth());
+    canvas.drawPath(stroke.getPath(), paint);
 }
 ```
 
@@ -292,10 +288,16 @@ public class HistoryManager {
 
 ```java
 public class BrushManager {
-    // 预设颜色
+    // 预设颜色（黑、红、蓝、绿、黄、橙、紫、棕）
     private static final int[] PRESET_COLORS = {
-        Color.BLACK, Color.RED, Color.BLUE, Color.GREEN,
-        Color.YELLOW, 0xFFFFA500, 0xFF800080, Color.WHITE
+        Color.BLACK,       // 0
+        Color.RED,         // 1
+        Color.BLUE,        // 2
+        Color.GREEN,       // 3
+        Color.YELLOW,      // 4
+        0xFFFFA500,        // 5 - 橙色
+        0xFF800080,        // 6 - 紫色
+        0xFF8B4513         // 7 - 棕色
     };
 
     // 预设粗细
