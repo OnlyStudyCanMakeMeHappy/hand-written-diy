@@ -71,12 +71,12 @@ com.example.doodleapp
 
 ### DrawingView 实现要点
 
-- 继承 `View` 或 `SurfaceView`
+- 继承 `View`
 - 重写 `onTouchEvent()` 处理触摸事件
-- 使用 `Canvas` 和 `Paint` 绘制
+- 重写 `onDraw()` 绘制所有 Stroke
 - `Paint` 设置：
   - `setStrokeCap(Paint.Cap.ROUND)`
-  - `setAlpha(180)` 实现马克笔半透明效果
+  - `setAlpha(stroke.alpha)` 每笔独立透明度
   - `setStyle(Paint.Style.STROKE)`
 
 ### 历史记录设计
@@ -85,7 +85,8 @@ com.example.doodleapp
 // Stroke 数据结构
 class Stroke {
     Path path;       // 路径轨迹
-    int color;       // 颜色 (ARGB)
+    int color;       // 颜色 (RGB)
+    int alpha;       // 透明度 (0-255)
     float width;     // 粗细
     boolean eraser;  // 是否是橡皮擦
 }
@@ -93,12 +94,16 @@ class Stroke {
 // 历史管理
 List<Stroke> strokes = new ArrayList<>();  // 当前画布的所有笔画
 Stack<Stroke> redoStack = new Stack<>();   // 被撤销的笔画
-private static final int MAX_HISTORY = 50;
+private static final int MAX_UNDO = 50;
 
 // 撤销：移除最后一笔到 redoStack
 void undo() {
     if (!strokes.isEmpty()) {
         redoStack.push(strokes.remove(strokes.size() - 1));
+        // 限制 redoStack 大小
+        if (redoStack.size() > MAX_UNDO) {
+            redoStack.remove(0);
+        }
     }
 }
 
