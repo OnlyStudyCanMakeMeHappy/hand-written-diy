@@ -1,6 +1,9 @@
 // build.gradle (project level)
 buildscript {
     repositories {
+        maven { url 'https://maven.aliyun.com/google' }
+        maven { url 'https://maven.aliyun.com/central' }
+        maven { url 'https://maven.aliyun.com/public' }
         google()
         mavenCentral()
     }
@@ -11,6 +14,9 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url 'https://maven.aliyun.com/google' }
+        maven { url 'https://maven.aliyun.com/central' }
+        maven { url 'https://maven.aliyun.com/public' }
         google()
         mavenCentral()
     }
