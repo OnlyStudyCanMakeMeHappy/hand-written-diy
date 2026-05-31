@@ -1,19 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 工具栏 -->
-    <dimen name="toolbar_height">56dp</dimen>
-    <dimen name="toolbar_padding">8dp</dimen>
+    <!-- ========== 基础间距 - 8dp 基准 ========== -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">16dp</dimen>
+    <dimen name="spacing_lg">24dp</dimen>
+    <dimen name="spacing_xl">32dp</dimen>
+
+    <!-- ========== 圆角 ========== -->
+    <dimen name="corner_sm">8dp</dimen>
+    <dimen name="corner_md">12dp</dimen>
+    <dimen name="corner_lg">16dp</dimen>
+    <dimen name="corner_xl">24dp</dimen>
+
+    <!-- ========== 工具栏 ========== -->
+    <dimen name="toolbar_height">64dp</dimen>
+    <dimen name="toolbar_padding_horizontal">20dp</dimen>
+    <dimen name="toolbar_padding_vertical">12dp</dimen>
+    <dimen name="toolbar_elevation">8dp</dimen>
+
+    <!-- ========== 按钮 ========== -->
     <dimen name="button_size">48dp</dimen>
+    <dimen name="button_icon_size">24dp</dimen>
+    <dimen name="button_padding">12dp</dimen>
+    <dimen name="button_stroke_width">1dp</dimen>
+    <dimen name="button_min_width">48dp</dimen>
 
-    <!-- 颜色选择器 -->
-    <dimen name="color_circle_size">32dp</dimen>
+    <!-- ========== 颜色选择器 ========== -->
+    <dimen name="color_circle_size">36dp</dimen>
+    <dimen name="color_circle_selected_size">44dp</dimen>
     <dimen name="color_circle_selected_stroke">3dp</dimen>
-    <dimen name="color_spacing">8dp</dimen>
+    <dimen name="color_spacing">12dp</dimen>
 
-    <!-- 对话框 -->
+    <!-- ========== 对话框 ========== -->
     <dimen name="dialog_padding">24dp</dimen>
     <dimen name="dialog_button_height">48dp</dimen>
+    <dimen name="dialog_corner">16dp</dimen>
 
-    <!-- 笔刷 -->
+    <!-- ========== 卡片/容器 ========== -->
+    <dimen name="card_elevation">4dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+    <dimen name="card_stroke_width">1dp</dimen>
+
+    <!-- ========== 文字 ========== -->
+    <dimen name="text_xs">12sp</dimen>
+    <dimen name="text_sm">14sp</dimen>
+    <dimen name="text_md">16sp</dimen>
+    <dimen name="text_lg">18sp</dimen>
+    <dimen name="text_xl">24sp</dimen>
+
+    <!-- ========== 兼容旧名称 ========== -->
+    <dimen name="toolbar_padding">@dimen/spacing_sm</dimen>
     <dimen name="brush_size_indicator">80dp</dimen>
 </resources>

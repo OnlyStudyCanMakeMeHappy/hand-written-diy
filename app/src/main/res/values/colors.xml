@@ -1,21 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 预设画笔颜色 -->
-    <color name="brush_black">#000000</color>
-    <color name="brush_red">#FF0000</color>
-    <color name="brush_blue">#0000FF</color>
-    <color name="brush_green">#00FF00</color>
-    <color name="brush_yellow">#FFFF00</color>
-    <color name="brush_orange">#FFA500</color>
-    <color name="brush_purple">#800080</color>
-    <color name="brush_brown">#8B4513</color>
+    <!-- ========== 画笔颜色 ========== -->
+    <color name="brush_black">#1A1A1A</color>
+    <color name="brush_red">#E63946</color>
+    <color name="brush_blue">#457B9D</color>
+    <color name="brush_green">#2A9D8F</color>
+    <color name="brush_yellow">#E9C46A</color>
+    <color name="brush_orange">#F4A261</color>
+    <color name="brush_purple">#9B5DE5</color>
+    <color name="brush_brown">#8D6E63</color>
 
-    <!-- 主题颜色 -->
-    <color name="primary">#6200EE</color>
-    <color name="primary_dark">#3700B3</color>
-    <color name="accent">#03DAC5</color>
+    <!-- ========== 主题颜色 - 现代简约 ========== -->
+    <!-- 主色 - 柔和蓝紫 -->
+    <color name="primary">#5B6BC7</color>
+    <color name="primary_container">#E8EAF6</color>
+    <color name="primary_dark">#464FB0</color>
+
+    <!-- 强调色 - 珊瑚红 -->
+    <color name="accent">#FF6B6B</color>
+    <color name="accent_container">#FFE0E0</color>
+
+    <!-- 背景 - 渐变白 -->
+    <color name="background">#FAFAFA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F5F5F5</color>
+
+    <!-- 画布 - 纯白 -->
     <color name="canvas_white">#FFFFFF</color>
-    <color name="toolbar_bg">#FFFFFF</color>
-    <color name="toolbar_stroke">#E0E0E0</color>
-    <color name="selected_indicator">#6200EE</color>
+
+    <!-- 工具栏 - 渐变背景 -->
+    <color name="toolbar_start">#FFFFFF</color>
+    <color name="toolbar_end">#F8F9FF</color>
+
+    <!-- 文字颜色 -->
+    <color name="text_primary">#1C1B1F</color>
+    <color name="text_secondary">#49454F</color>
+    <color name="text_hint">#9B979E</color>
+
+    <!-- 分割线 - 淡灰 -->
+    <color name="divider">#E8E4EC</color>
+
+    <!-- 选中指示器 -->
+    <color name="selected_indicator">#5B6BC7</color>
+    <color name="selected_stroke">#FFFFFF</color>
+
+    <!-- 阴影 -->
+    <color name="shadow_light">#1A000000</color>
+    <color name="shadow_medium">#33000000</color>
+
+    <!-- 状态颜色 -->
+    <color name="success">#4CAF50</color>
+    <color name="error">#EF5350</color>
+    <color name="warning">#FFA726</color>
+
+    <!-- 橡皮擦背景 - 选中状态 -->
+    <color name="eraser_selected">#E8EAF6</color>
+    <color name="eraser_normal">#F5F5F5</color>
+
+    <!-- ========== 兼容旧名称 ========== -->
+    <color name="toolbar_bg">@color/toolbar_start</color>
+    <color name="toolbar_stroke">@color/divider</color>
 </resources>
