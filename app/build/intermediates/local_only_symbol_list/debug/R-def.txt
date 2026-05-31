@@ -28,6 +28,7 @@ drawable ic_add
 drawable ic_clear
 drawable ic_color_indicator
 drawable ic_eraser
+drawable ic_launcher_foreground
 drawable ic_redo
 drawable ic_save
 drawable ic_undo

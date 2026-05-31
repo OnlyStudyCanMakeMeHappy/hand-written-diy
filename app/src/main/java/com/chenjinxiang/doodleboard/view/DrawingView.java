@@ -30,8 +30,14 @@ public class DrawingView extends View {
 
     private OnHistoryChangeListener historyChangeListener;
     private Paint paint;
+    private Paint cursorPaint;
     private Path currentPath;
     private float lastX, lastY;
+
+    // 橡皮擦光标相关
+    private float cursorX = -1;
+    private float cursorY = -1;
+    private boolean isTouching = false;
 
     private HistoryManager historyManager;
     private BrushManager brushManager;
@@ -54,6 +60,13 @@ public class DrawingView extends View {
         paint.setAntiAlias(true);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStyle(Paint.Style.STROKE);
+
+        // 初始化橡皮擦光标画笔
+        cursorPaint = new Paint();
+        cursorPaint.setAntiAlias(true);
+        cursorPaint.setStyle(Paint.Style.STROKE);
+        cursorPaint.setColor(Color.GRAY);
+        cursorPaint.setStrokeWidth(2f);
     }
 
     @Override
@@ -74,6 +87,23 @@ public class DrawingView extends View {
             paint.setAlpha(brushManager.isEraser() ? 255 : brushManager.getAlpha());
             paint.setStrokeWidth(brushManager.getWidth());
             canvas.drawPath(currentPath, paint);
+        }
+
+        // 4. 绘制橡皮擦光标指示器
+        if (brushManager.isEraser() && isTouching && cursorX >= 0 && cursorY >= 0) {
+            float brushSize = brushManager.getWidth();
+            float cursorRadius = brushSize / 2f + 4f; // 稍微大一点以便看到
+
+            // 绘制虚线圆圈表示橡皮擦范围
+            cursorPaint.setStyle(Paint.Style.STROKE);
+            cursorPaint.setColor(Color.GRAY);
+            cursorPaint.setStrokeWidth(2f);
+            canvas.drawCircle(cursorX, cursorY, cursorRadius, cursorPaint);
+
+            // 绘制中心点
+            cursorPaint.setStyle(Paint.Style.FILL);
+            cursorPaint.setColor(Color.parseColor("#E0E0E0"));
+            canvas.drawCircle(cursorX, cursorY, 4f, cursorPaint);
         }
     }
 
@@ -167,13 +197,26 @@ public class DrawingView extends View {
     }
 
     private void handleActionDown(float x, float y) {
+        isTouching = true;
+        cursorX = x;
+        cursorY = y;
+
         currentPath = new Path();
         currentPath.moveTo(x, y);
         lastX = x;
         lastY = y;
+
+        // 橡皮擦模式下需要立即刷新以显示光标
+        if (brushManager.isEraser()) {
+            invalidate();
+        }
     }
 
     private void handleActionMove(float x, float y) {
+        // 更新光标位置
+        cursorX = x;
+        cursorY = y;
+
         if (currentPath != null) {
             // 二阶贝塞尔平滑处理
             float midX = (lastX + x) / 2;
@@ -188,6 +231,10 @@ public class DrawingView extends View {
     }
 
     private void handleActionUp(float x, float y) {
+        isTouching = false;
+        cursorX = -1;
+        cursorY = -1;
+
         if (currentPath != null) {
             // 连接最后一点，避免线条末端略短
             currentPath.lineTo(x, y);
