@@ -1,6 +1,7 @@
 package com.chenjinxiang.doodleboard.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -92,6 +93,24 @@ public class DrawingView extends View {
     public void clear() {
         historyManager.clear();
         invalidate();
+    }
+
+    /**
+     * 获取画布内容的 Bitmap
+     */
+    public Bitmap getCanvasBitmap() {
+        Bitmap result = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(result);
+
+        // 绘制白色背景
+        canvas.drawColor(Color.WHITE);
+
+        // 绘制所有笔画
+        for (Stroke stroke : historyManager.getStrokes()) {
+            drawStroke(canvas, stroke);
+        }
+
+        return result;
     }
 
     @Override

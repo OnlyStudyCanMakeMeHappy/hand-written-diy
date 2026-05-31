@@ -4,12 +4,15 @@ import android.graphics.Path;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import static org.junit.Assert.*;
 
 /**
  * HistoryManager 单元测试
  */
+@RunWith(RobolectricTestRunner.class)
 public class HistoryManagerTest {
 
     private HistoryManager historyManager;
