@@ -1,72 +1,222 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="@dimen/dialog_padding">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/select_color"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/redSlider"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:valueFrom="0"
-        android:valueTo="255"
-        android:title="R" />
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/greenSlider"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:valueFrom="0"
-        android:valueTo="255"
-        android:title="G" />
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/blueSlider"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:valueFrom="0"
-        android:valueTo="255"
-        android:title="B" />
-
-    <!-- 颜色预览 -->
-    <View
-        android:id="@+id/colorPreview"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        android:background="@color/brush_black" />
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_panel_surface"
+    android:fillViewport="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:orientation="horizontal"
-        android:gravity="end">
+        android:orientation="vertical"
+        android:padding="@dimen/dialog_padding">
 
-        <Button
-            android:id="@+id/btnCancel"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/cancel" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <Button
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/custom_color_title"
+                android:textColor="@color/ui_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btnCancel"
+                android:layout_width="@dimen/tool_icon_touch_size"
+                android:layout_height="@dimen/tool_icon_touch_size"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/cancel"
+                android:padding="9dp"
+                android:src="@drawable/ic_close" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.chenjinxiang.doodleboard.ui.PaletteWheelView
+                android:id="@+id/colorWheel"
+                android:layout_width="132dp"
+                android:layout_height="132dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/current_color"
+                    android:textColor="@color/ui_text_secondary"
+                    android:textSize="12sp" />
+
+                <View
+                    android:id="@+id/colorPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@color/brush_black" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/hex_label"
+                    android:textColor="@color/ui_text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/hexValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="34dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_size_chip"
+                    android:gravity="center_vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="#000000"
+                    android:textColor="@color/ui_text_primary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/rgb_label"
+                    android:textColor="@color/ui_text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/rgbValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="34dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_size_chip"
+                    android:gravity="center_vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="0, 0, 0"
+                    android:textColor="@color/ui_text_primary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/common_colors"
+            android:textColor="@color/ui_text_secondary"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:id="@+id/commonColorContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/commonBlue"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginEnd="9dp" />
+
+            <View
+                android:id="@+id/commonRed"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginEnd="9dp" />
+
+            <View
+                android:id="@+id/commonOrange"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginEnd="9dp" />
+
+            <View
+                android:id="@+id/commonGreen"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginEnd="9dp" />
+
+            <View
+                android:id="@+id/commonPurple"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginEnd="9dp" />
+
+            <View
+                android:id="@+id/commonBrown"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginEnd="9dp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/red_channel"
+            android:textColor="@color/ui_text_secondary"
+            android:textSize="12sp" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/redSlider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="255" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/green_channel"
+            android:textColor="@color/ui_text_secondary"
+            android:textSize="12sp" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/greenSlider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="255" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/blue_channel"
+            android:textColor="@color/ui_text_secondary"
+            android:textSize="12sp" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/blueSlider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="255" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnConfirm"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/confirm" />
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/ui_primary_blue"
+            android:text="@string/confirm"
+            app:cornerRadius="18dp" />
     </LinearLayout>
-
-</LinearLayout>
+</ScrollView>

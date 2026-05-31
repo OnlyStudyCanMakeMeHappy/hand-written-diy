@@ -1,22 +1,24 @@
 package com.chenjinxiang.doodleboard;
 
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.chenjinxiang.doodleboard.model.BrushManager;
-import com.chenjinxiang.doodleboard.ui.BrushSizeDialog;
 import com.chenjinxiang.doodleboard.ui.ColorPickerDialog;
 import com.chenjinxiang.doodleboard.utils.FileSaver;
 import com.chenjinxiang.doodleboard.view.DrawingView;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.slider.Slider;
 import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,13 +26,15 @@ public class MainActivity extends AppCompatActivity {
     private DrawingView drawingView;
     private BrushManager brushManager;
 
-    // 底部工具栏控件
-    private ImageButton btnUndo, btnRedo;
-    private ImageButton btnEraser, btnClear, btnMoreColors;
-    private LinearLayout colorContainer;
+    private View colorPanel, sizePanel, bottomToolbar;
+    private ImageButton btnBack, btnTopClear, btnCloseColorPanel, btnCloseSizePanel;
+    private View btnUndo, btnRedo, btnBrush, btnEraser, btnColor, btnSize, btnSave;
+    private TextView tvSizeChip, tvPanelSizeValue;
+    private View currentColorDot;
+    private Slider inlineSizeSlider;
 
-    // 颜色选择视图数组
-    private View[] colorViews;
+    private View[] colorSwatches;
+    private MaterialButton[] sizeButtons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +42,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
-        setupColorPalette();
         setupToolbarButtons();
+        setupColorPanel();
+        setupSizePanel();
+        updateColorSelection();
+        updateSizeIndicators(brushManager.getWidth());
         updateButtonStates();
     }
 
@@ -47,119 +54,215 @@ public class MainActivity extends AppCompatActivity {
         drawingView = findViewById(R.id.drawingView);
         brushManager = drawingView.getBrushManager();
 
+        bottomToolbar = findViewById(R.id.bottomToolbar);
+        colorPanel = findViewById(R.id.colorPanel);
+        sizePanel = findViewById(R.id.sizePanel);
+
+        btnBack = findViewById(R.id.btnBack);
+        btnTopClear = findViewById(R.id.btnTopClear);
+        btnCloseColorPanel = findViewById(R.id.btnCloseColorPanel);
+        btnCloseSizePanel = findViewById(R.id.btnCloseSizePanel);
+
         btnUndo = findViewById(R.id.btnUndo);
         btnRedo = findViewById(R.id.btnRedo);
+        btnBrush = findViewById(R.id.btnBrush);
         btnEraser = findViewById(R.id.btnEraser);
-        btnClear = findViewById(R.id.btnClear);
-        btnMoreColors = findViewById(R.id.btnMoreColors);
-        colorContainer = findViewById(R.id.colorContainer);
+        btnColor = findViewById(R.id.btnColor);
+        btnSize = findViewById(R.id.btnSize);
+        btnSave = findViewById(R.id.btnSave);
 
-        findViewById(R.id.btnBrushSize).setOnClickListener(v -> showBrushSizeDialog());
-        findViewById(R.id.btnSave).setOnClickListener(v -> saveDrawing());
+        tvSizeChip = findViewById(R.id.tvSizeChip);
+        tvPanelSizeValue = findViewById(R.id.tvPanelSizeValue);
+        currentColorDot = findViewById(R.id.currentColorDot);
+        inlineSizeSlider = findViewById(R.id.inlineSizeSlider);
 
-        // 设置历史状态变化监听器
-        drawingView.setOnHistoryChangeListener(() -> updateButtonStates());
+        drawingView.setOnHistoryChangeListener(this::updateButtonStates);
     }
 
-    private void setupColorPalette() {
-        colorViews = new View[BrushManager.PRESET_COLORS.length];
+    private void setupToolbarButtons() {
+        btnBack.setOnClickListener(v -> finish());
+        btnTopClear.setOnClickListener(v -> showClearDialog());
+        btnCloseColorPanel.setOnClickListener(v -> hidePanels());
+        btnCloseSizePanel.setOnClickListener(v -> hidePanels());
 
-        for (int i = 0; i < BrushManager.PRESET_COLORS.length; i++) {
-            View colorView = createColorView(BrushManager.PRESET_COLORS[i], i);
-            colorContainer.addView(colorView);
-            colorViews[i] = colorView;
-        }
+        btnUndo.setOnClickListener(v -> undoDrawing());
+        btnRedo.setOnClickListener(v -> redoDrawing());
 
-        updateColorSelection();
-    }
-
-    private View createColorView(int color, int index) {
-        View colorCircle = new View(this);
-        int size = getResources().getDimensionPixelSize(R.dimen.color_circle_size);
-        int margin = getResources().getDimensionPixelSize(R.dimen.color_spacing);
-
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
-        params.setMargins(margin, margin, margin, margin);
-        colorCircle.setLayoutParams(params);
-
-        colorCircle.setBackgroundColor(color);
-        colorCircle.setTag(index);
-
-        colorCircle.setOnClickListener(v -> {
-            int colorIndex = (int) v.getTag();
-            brushManager.setPresetColor(colorIndex);
+        btnBrush.setOnClickListener(v -> {
             brushManager.setEraser(false);
-            updateColorSelection();
+            hidePanels();
             updateButtonStates();
         });
 
-        return colorCircle;
+        btnEraser.setOnClickListener(v -> {
+            brushManager.setEraser(true);
+            showPanel(sizePanel);
+            updateButtonStates();
+        });
+
+        btnColor.setOnClickListener(v -> {
+            brushManager.setEraser(false);
+            hidePanels();
+            showColorPickerDialog();
+            updateButtonStates();
+        });
+
+        btnSize.setOnClickListener(v -> showPanel(sizePanel));
+        btnSave.setOnClickListener(v -> saveDrawing());
+    }
+
+    private void setupColorPanel() {
+        int[] colorViewIds = {
+            R.id.colorBlack, R.id.colorRed, R.id.colorBlue, R.id.colorGreen,
+            R.id.colorYellow, R.id.colorOrange, R.id.colorPurple, R.id.colorBrown
+        };
+        colorSwatches = new View[colorViewIds.length];
+
+        for (int i = 0; i < colorViewIds.length; i++) {
+            final int colorIndex = i;
+            View swatch = findViewById(colorViewIds[i]);
+            swatch.setBackground(createSwatchDrawable(BrushManager.PRESET_COLORS[i], false));
+            swatch.setOnClickListener(v -> {
+                brushManager.setPresetColor(colorIndex);
+                brushManager.setEraser(false);
+                updateColorSelection();
+                updateButtonStates();
+            });
+            colorSwatches[i] = swatch;
+        }
+
+        findViewById(R.id.colorCustom).setOnClickListener(v -> showColorPickerDialog());
+    }
+
+    private void setupSizePanel() {
+        sizeButtons = new MaterialButton[] {
+            findViewById(R.id.btnSize2),
+            findViewById(R.id.btnSize8),
+            findViewById(R.id.btnSize20),
+            findViewById(R.id.btnSize40)
+        };
+
+        inlineSizeSlider.setValue(brushManager.getWidth());
+        inlineSizeSlider.addOnChangeListener((slider, value, fromUser) -> {
+            brushManager.setWidth(value);
+            updateSizeIndicators(value);
+        });
+
+        float[] sizes = BrushManager.PRESET_SIZES;
+        for (int i = 0; i < sizeButtons.length; i++) {
+            final float size = sizes[i];
+            sizeButtons[i].setOnClickListener(v -> inlineSizeSlider.setValue(size));
+        }
+    }
+
+    private void showPanel(View panelToShow) {
+        colorPanel.setVisibility(panelToShow == colorPanel ? View.VISIBLE : View.GONE);
+        sizePanel.setVisibility(panelToShow == sizePanel ? View.VISIBLE : View.GONE);
+    }
+
+    private void hidePanels() {
+        colorPanel.setVisibility(View.GONE);
+        sizePanel.setVisibility(View.GONE);
+    }
+
+    private void undoDrawing() {
+        drawingView.getHistoryManager().undo();
+        drawingView.invalidate();
+        updateButtonStates();
+    }
+
+    private void redoDrawing() {
+        drawingView.getHistoryManager().redo();
+        drawingView.invalidate();
+        updateButtonStates();
+    }
+
+    private void updateButtonStates() {
+        updateHistoryButtonState(btnUndo, drawingView.getHistoryManager().canUndo());
+        updateHistoryButtonState(btnRedo, drawingView.getHistoryManager().canRedo());
+
+        boolean isEraser = brushManager.isEraser();
+        btnBrush.setSelected(!isEraser);
+        btnEraser.setSelected(isEraser);
+        setToolActive(btnBrush, !isEraser);
+        setToolActive(btnEraser, isEraser);
+    }
+
+    private void updateHistoryButtonState(View button, boolean enabled) {
+        button.setEnabled(enabled);
+        button.setAlpha(enabled ? 1f : 0.38f);
+    }
+
+    private void setToolActive(View tool, boolean active) {
+        View icon = tool instanceof android.view.ViewGroup
+            ? ((android.view.ViewGroup) tool).getChildAt(0)
+            : tool;
+        icon.setBackgroundResource(active ? R.drawable.bg_tool_active : R.drawable.bg_tool_inactive);
     }
 
     private void updateColorSelection() {
         int selectedIndex = brushManager.getPresetColorIndex();
 
-        for (int i = 0; i < colorViews.length; i++) {
-            View colorView = colorViews[i];
-            ViewGroup.LayoutParams params = colorView.getLayoutParams();
+        if (colorSwatches != null) {
+            for (int i = 0; i < colorSwatches.length; i++) {
+                colorSwatches[i].setBackground(createSwatchDrawable(
+                    BrushManager.PRESET_COLORS[i],
+                    i == selectedIndex
+                ));
+            }
+        }
 
-            if (i == selectedIndex) {
-                // 高亮选中的颜色
-                colorView.setElevation(8);
-            } else {
-                colorView.setElevation(0);
+        updateCurrentColorIndicator();
+    }
+
+    private void updateCurrentColorIndicator() {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setShape(GradientDrawable.OVAL);
+        drawable.setColor(brushManager.getColor());
+        drawable.setStroke(dp(2), Color.WHITE);
+        currentColorDot.setBackground(drawable);
+    }
+
+    private GradientDrawable createSwatchDrawable(int color, boolean selected) {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setShape(GradientDrawable.RECTANGLE);
+        drawable.setCornerRadius(dp(10));
+        drawable.setColor(color);
+        drawable.setStroke(
+            dp(selected ? 4 : 1),
+            selected ? getColorCompat(R.color.ui_primary_blue_outline) : getColorCompat(R.color.ui_outline)
+        );
+        return drawable;
+    }
+
+    private void updateSizeIndicators(float size) {
+        String label = getString(R.string.current_size, (int) size);
+        tvSizeChip.setText(label);
+        tvPanelSizeValue.setText(label);
+
+        float[] sizes = BrushManager.PRESET_SIZES;
+        if (sizeButtons != null) {
+            for (int i = 0; i < sizeButtons.length; i++) {
+                boolean selected = Math.round(size) == Math.round(sizes[i]);
+                sizeButtons[i].setTextColor(getColorCompat(
+                    selected ? R.color.ui_primary_blue : R.color.ui_text_primary
+                ));
+                sizeButtons[i].setBackgroundTintList(ColorStateList.valueOf(getColorCompat(
+                    selected ? R.color.ui_primary_blue_soft : R.color.ui_surface
+                )));
+                sizeButtons[i].setStrokeColor(ColorStateList.valueOf(getColorCompat(
+                    selected ? R.color.ui_primary_blue_outline : R.color.ui_outline
+                )));
             }
         }
     }
 
-    private void setupToolbarButtons() {
-        // 撤销/重做
-        btnUndo.setOnClickListener(v -> {
-            drawingView.getHistoryManager().undo();
-            drawingView.invalidate();
-            updateButtonStates();
-        });
-
-        btnRedo.setOnClickListener(v -> {
-            drawingView.getHistoryManager().redo();
-            drawingView.invalidate();
-            updateButtonStates();
-        });
-
-        // 更多颜色
-        btnMoreColors.setOnClickListener(v -> showColorPickerDialog());
-
-        // 橡皮擦
-        btnEraser.setOnClickListener(v -> {
-            brushManager.toggleEraser();
-            updateButtonStates();
-            showEraserToast();
-        });
-
-        // 清空
-        btnClear.setOnClickListener(v -> showClearDialog());
+    private int getColorCompat(int colorRes) {
+        return androidx.core.content.ContextCompat.getColor(this, colorRes);
     }
 
-    private void updateButtonStates() {
-        btnUndo.setEnabled(drawingView.getHistoryManager().canUndo());
-        btnRedo.setEnabled(drawingView.getHistoryManager().canRedo());
-
-        boolean isEraser = brushManager.isEraser();
-        btnEraser.setSelected(isEraser);
-
-        if (isEraser) {
-            btnEraser.setBackgroundColor(Color.parseColor("#E0E0E0"));
-        } else {
-            btnEraser.setBackgroundColor(Color.TRANSPARENT);
-        }
-    }
-
-    private void showEraserToast() {
-        if (brushManager.isEraser()) {
-            Toast.makeText(this, R.string.eraser_mode, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, R.string.draw_mode, Toast.LENGTH_SHORT).show();
-        }
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void showClearDialog() {
@@ -180,12 +283,7 @@ public class MainActivity extends AppCompatActivity {
             brushManager.setEraser(false);
             updateColorSelection();
             updateButtonStates();
-        }).show();
-    }
-
-    private void showBrushSizeDialog() {
-        new BrushSizeDialog(this, brushManager.getWidth(), size -> {
-            brushManager.setWidth(size);
+            hidePanels();
         }).show();
     }
 
@@ -194,21 +292,16 @@ public class MainActivity extends AppCompatActivity {
 
         if (bitmap != null) {
             boolean success = FileSaver.saveToGallery(this, bitmap);
+            String message = success
+                ? getString(R.string.saved_to_gallery)
+                : getString(R.string.save_failed);
 
-            String message = success ? getString(R.string.saved_to_gallery) : "保存失败";
-
-            Snackbar snackbar = Snackbar.make(
-                findViewById(R.id.bottomToolbar),
-                message,
-                Snackbar.LENGTH_LONG
-            );
-
+            Snackbar snackbar = Snackbar.make(bottomToolbar, message, Snackbar.LENGTH_LONG);
             if (success) {
                 snackbar.setAction(R.string.view, v -> {
-                    // TODO: 打开相册查看保存的图片
+                    // Gallery deep-linking needs the saved Uri, which FileSaver does not expose yet.
                 });
             }
-
             snackbar.show();
         }
     }
