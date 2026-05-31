@@ -109,7 +109,12 @@ public class DrawingView extends View {
                 break;
 
             case MotionEvent.ACTION_UP:
-                handleActionUp();
+                handleActionUp(x, y);
+                break;
+
+            case MotionEvent.ACTION_CANCEL:
+                // 手势被系统中断，保存当前笔画
+                handleActionUp(x, y);
                 break;
         }
 
@@ -137,8 +142,11 @@ public class DrawingView extends View {
         }
     }
 
-    private void handleActionUp() {
+    private void handleActionUp(float x, float y) {
         if (currentPath != null) {
+            // 连接最后一点，避免线条末端略短
+            currentPath.lineTo(x, y);
+
             // 保存笔画
             Stroke stroke = new Stroke(
                 currentPath,
