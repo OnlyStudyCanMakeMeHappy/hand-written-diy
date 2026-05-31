@@ -1,16 +1,18 @@
 // build.gradle (project level)
 buildscript {
     repositories {
-        // Repositories are managed in settings.gradle
+        maven { url 'https://maven.aliyun.com/google' }
+        maven { url 'https://maven.aliyun.com/central' }
+        maven { url 'https://maven.aliyun.com/public' }
+        google()
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.1.0'
     }
 }
 
-allprojects {
-    // Repositories are managed in settings.gradle
-}
+// Project repositories are managed in settings.gradle
 
 task clean(type: Delete) {
     delete rootProject.buildDir
