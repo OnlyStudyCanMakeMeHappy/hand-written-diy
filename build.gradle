@@ -1,11 +1,7 @@
 // build.gradle (project level)
 buildscript {
     repositories {
-        maven { url 'https://maven.aliyun.com/google' }
-        maven { url 'https://maven.aliyun.com/central' }
-        maven { url 'https://maven.aliyun.com/public' }
-        google()
-        mavenCentral()
+        // Repositories are managed in settings.gradle
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.1.0'
@@ -13,13 +9,7 @@ buildscript {
 }
 
 allprojects {
-    repositories {
-        maven { url 'https://maven.aliyun.com/google' }
-        maven { url 'https://maven.aliyun.com/central' }
-        maven { url 'https://maven.aliyun.com/public' }
-        google()
-        mavenCentral()
-    }
+    // Repositories are managed in settings.gradle
 }
 
 task clean(type: Delete) {
