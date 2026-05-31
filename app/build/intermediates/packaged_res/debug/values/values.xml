@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#03DAC5</color>
+    <color name="brush_black">#000000</color>
+    <color name="brush_blue">#0000FF</color>
+    <color name="brush_brown">#8B4513</color>
+    <color name="brush_green">#00FF00</color>
+    <color name="brush_orange">#FFA500</color>
+    <color name="brush_purple">#800080</color>
+    <color name="brush_red">#FF0000</color>
+    <color name="brush_yellow">#FFFF00</color>
+    <color name="canvas_white">#FFFFFF</color>
+    <color name="primary">#6200EE</color>
+    <color name="primary_dark">#3700B3</color>
+    <color name="selected_indicator">#6200EE</color>
+    <color name="toolbar_bg">#FFFFFF</color>
+    <color name="toolbar_stroke">#E0E0E0</color>
+    <dimen name="brush_size_indicator">80dp</dimen>
+    <dimen name="button_size">48dp</dimen>
+    <dimen name="color_circle_selected_stroke">3dp</dimen>
+    <dimen name="color_circle_size">32dp</dimen>
+    <dimen name="color_spacing">8dp</dimen>
+    <dimen name="dialog_button_height">48dp</dimen>
+    <dimen name="dialog_padding">24dp</dimen>
+    <dimen name="toolbar_height">56dp</dimen>
+    <dimen name="toolbar_padding">8dp</dimen>
+    <string name="app_name">涂鸦板</string>
+    <string name="brush_size">笔刷粗细</string>
+    <string name="cancel">取消</string>
+    <string name="clear">清空</string>
+    <string name="clear_confirm">清空</string>
+    <string name="clear_dialog_message">确定要清空所有内容吗？此操作不可撤销。</string>
+    <string name="clear_dialog_title">清空画布</string>
+    <string name="confirm">确定</string>
+    <string name="current_size">当前粗细: %dpx</string>
+    <string name="draw_mode">绘图模式</string>
+    <string name="eraser">橡皮擦</string>
+    <string name="eraser_mode">橡皮擦模式</string>
+    <string name="more_colors">更多颜色</string>
+    <string name="redo">重做</string>
+    <string name="save">保存</string>
+    <string name="saved_to_gallery">已保存到相册</string>
+    <string name="select_color">选择颜色</string>
+    <string name="undo">撤销</string>
+    <string name="view">查看</string>
+    <style name="Theme.DoodleBoard" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

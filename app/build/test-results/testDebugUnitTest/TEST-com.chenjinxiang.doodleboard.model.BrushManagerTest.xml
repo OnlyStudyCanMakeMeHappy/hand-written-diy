@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.chenjinxiang.doodleboard.model.BrushManagerTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2026-05-31T03:35:50" hostname="CJXHS" time="0.005">
+  <properties/>
+  <testcase name="testPresetColors_containsBrown" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testPresetSizes_values" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.001"/>
+  <testcase name="testPresetColors_count" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.001"/>
+  <testcase name="testSetPresetSize_validIndex" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testDefaultValues" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testDefaultEraserState" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetWidth_aboveMaximum" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testDefaultAlpha" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetAlpha_withinRange" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testGetPresetColorIndex_withCustom" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetAlpha_boundaryValues" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.001"/>
+  <testcase name="testSetPresetColor_validIndex" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetEraser_true" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testGetPresetColorIndex_withPreset" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetWidth_belowMinimum" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetAlpha_aboveMaximum" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testPresetSizes_count" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetEraser_false" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetPresetSize_invalidIndex" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetWidth_withinRange" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetWidth_boundaryValues" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetPresetColor_allPresets" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testToggleEraser" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetAlpha_belowMinimum" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetPresetColor_invalidIndex" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <testcase name="testSetColor" classname="com.chenjinxiang.doodleboard.model.BrushManagerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

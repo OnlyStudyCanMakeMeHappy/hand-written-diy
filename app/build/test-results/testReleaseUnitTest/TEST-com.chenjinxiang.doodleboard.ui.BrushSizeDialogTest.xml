@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.chenjinxiang.doodleboard.ui.BrushSizeDialogTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-05-31T03:35:56" hostname="CJXHS" time="0.003">
+  <properties/>
+  <testcase name="brushSizeDialog_has_listener_interface" classname="com.chenjinxiang.doodleboard.ui.BrushSizeDialogTest" time="0.001"/>
+  <testcase name="brushSizeDialog_class_exists" classname="com.chenjinxiang.doodleboard.ui.BrushSizeDialogTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

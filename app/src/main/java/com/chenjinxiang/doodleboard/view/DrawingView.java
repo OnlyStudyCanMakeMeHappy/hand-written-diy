@@ -20,6 +20,15 @@ import com.chenjinxiang.doodleboard.model.Stroke;
  * 使用纯 Stroke 方案，每次 onDraw 重绘所有笔画
  */
 public class DrawingView extends View {
+
+    /**
+     * 历史状态变化监听器
+     */
+    public interface OnHistoryChangeListener {
+        void onHistoryChanged();
+    }
+
+    private OnHistoryChangeListener historyChangeListener;
     private Paint paint;
     private Path currentPath;
     private float lastX, lastY;
@@ -93,6 +102,23 @@ public class DrawingView extends View {
     public void clear() {
         historyManager.clear();
         invalidate();
+        notifyHistoryChanged();
+    }
+
+    /**
+     * 设置历史状态变化监听器
+     */
+    public void setOnHistoryChangeListener(OnHistoryChangeListener listener) {
+        this.historyChangeListener = listener;
+    }
+
+    /**
+     * 通知监听器历史状态已变化
+     */
+    private void notifyHistoryChanged() {
+        if (historyChangeListener != null) {
+            historyChangeListener.onHistoryChanged();
+        }
     }
 
     /**
@@ -178,6 +204,7 @@ public class DrawingView extends View {
 
             currentPath = null;
             invalidate();
+            notifyHistoryChanged(); // 通知历史状态变化
         }
     }
 }

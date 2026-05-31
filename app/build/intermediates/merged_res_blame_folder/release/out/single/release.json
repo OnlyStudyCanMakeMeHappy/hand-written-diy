@@ -1,0 +1,50 @@
+[
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/drawable_ic_undo.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/drawable/ic_undo.xml"
+    },
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/layout_dialog_color_picker.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/layout/dialog_color_picker.xml"
+    },
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/drawable_ic_add.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/drawable/ic_add.xml"
+    },
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/drawable_ic_color_indicator.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/drawable/ic_color_indicator.xml"
+    },
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/layout_dialog_brush_size.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/layout/dialog_brush_size.xml"
+    },
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/drawable_ic_eraser.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/drawable/ic_eraser.xml"
+    },
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/drawable_ic_save.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/drawable/ic_save.xml"
+    },
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/drawable_ic_redo.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/drawable/ic_redo.xml"
+    },
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/layout_activity_main.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.chenjinxiang.doodleboard.app-merged_res-28:/drawable_ic_clear.xml.flat",
+        "source": "com.chenjinxiang.doodleboard.app-main-29:/drawable/ic_clear.xml"
+    }
+]

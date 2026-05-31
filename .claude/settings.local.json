@@ -3,7 +3,24 @@
     "allow": [
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(./gradlew assembleDebug)",
+      "Bash(gradle wrapper *)",
+      "Skill(claude-hud:setup)",
+      "Bash(curl -L -o \"C:\\\\Users\\\\19158\\\\Desktop\\\\hand-written-diy\\\\gradle\\\\wrapper\\\\gradle-wrapper.jar\" https://github.com/gradle/gradle/raw/v8.0.0/gradle/wrapper/gradle-wrapper.jar)",
+      "Bash(curl -L -o \"C:\\\\Users\\\\19158\\\\Desktop\\\\hand-written-diy\\\\gradle\\\\wrapper\\\\gradle-wrapper.jar\" https://raw.githubusercontent.com/nickvergessen/server/master/gradle/wrapper/gradle-wrapper.jar)",
+      "Bash(./gradlew compileDebugAndroidTestSources)",
+      "Bash(./gradlew clean *)",
+      "Bash(java *)",
+      "Bash(where java *)",
+      "Bash(./gradlew compileDebugAndroidTestSources --no-daemon)",
+      "Bash(adb devices *)",
+      "Bash(grep -v \"^$\")",
+      "Bash(./gradlew compileDebugSources --no-daemon)",
+      "Bash(./gradlew test *)",
+      "Bash(./gradlew testDebugUnitTest --no-daemon)",
+      "Bash(git remote *)",
+      "Bash(git push *)"
     ]
   }
 }

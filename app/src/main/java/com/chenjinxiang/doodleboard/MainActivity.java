@@ -56,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.btnBrushSize).setOnClickListener(v -> showBrushSizeDialog());
         findViewById(R.id.btnSave).setOnClickListener(v -> saveDrawing());
+
+        // 设置历史状态变化监听器
+        drawingView.setOnHistoryChangeListener(() -> updateButtonStates());
     }
 
     private void setupColorPalette() {

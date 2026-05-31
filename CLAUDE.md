@@ -78,19 +78,6 @@ com.chenjinxiang.doodleboard
     └── FileSaver.java
 ```
 
-## Important Constants
-
-**Preset Colors** (8 colors, no white):
-```java
-BLACK, RED, BLUE, GREEN, YELLOW, ORANGE, PURPLE, BROWN(#8B4513)
-```
-
-**Preset Brush Sizes**: 2px, 8px, 20px, 40px
-
-**Marker Alpha**: 180 (≈70% opacity for stacking effect)
-
-**Max Undo**: 50 strokes
-
 ## Design Documents
 
 - Spec: `docs/superpowers/specs/2026-05-30-doodle-app-design.md`
@@ -103,3 +90,6 @@ BLACK, RED, BLUE, GREEN, YELLOW, ORANGE, PURPLE, BROWN(#8B4513)
 - **Min SDK**: 29 (Android 10)
 - **Permissions**: None needed (Scoped Storage + MediaStore)
 - **Save Format**: PNG to `Pictures/涂鸦板/` with filename `涂鸦_YYYY-MM-DD_HHMMSS.png`
+
+
+
