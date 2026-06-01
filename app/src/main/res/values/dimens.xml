@@ -52,4 +52,19 @@
     <!-- ========== 兼容旧名称 ========== -->
     <dimen name="toolbar_padding">@dimen/spacing_sm</dimen>
     <dimen name="brush_size_indicator">80dp</dimen>
+    <!-- Material 3 refresh layout -->
+    <dimen name="screen_edge_padding">16dp</dimen>
+    <dimen name="top_bar_height">56dp</dimen>
+    <dimen name="floating_toolbar_height">72dp</dimen>
+    <dimen name="floating_toolbar_bottom_margin">24dp</dimen>
+    <dimen name="floating_toolbar_radius">24dp</dimen>
+    <dimen name="tool_item_min_width">42dp</dimen>
+    <dimen name="tool_icon_touch_size">36dp</dimen>
+    <dimen name="tool_icon_size">22dp</dimen>
+    <dimen name="tool_label_text_size">10sp</dimen>
+    <dimen name="panel_corner_radius">24dp</dimen>
+    <dimen name="panel_padding">16dp</dimen>
+    <dimen name="color_swatch_size">40dp</dimen>
+    <dimen name="color_swatch_radius">10dp</dimen>
+    <dimen name="size_preset_height">36dp</dimen>
 </resources>

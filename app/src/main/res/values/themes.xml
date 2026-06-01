@@ -13,14 +13,16 @@
         <item name="colorOnSecondary">@color/surface</item>
 
         <!-- 背景 -->
-        <item name="android:windowBackground">@color/background</item>
+        <item name="android:windowBackground">@color/ui_canvas</item>
         <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorSurfaceVariant">@color/surface_variant</item>
 
         <!-- 状态栏 -->
-        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@color/ui_canvas</item>
+        <item name="android:navigationBarColor">@color/ui_canvas</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
 
         <!-- 边缘贴合 -->
@@ -34,5 +36,34 @@
     <!-- 圆角按钮样式 -->
     <style name="RoundedButton" parent="Widget.Material3.Button">
         <item name="cornerRadius">@dimen/corner_md</item>
+    </style>
+
+    <style name="ToolbarToolItem">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:minWidth">@dimen/tool_item_min_width</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="ToolbarToolIcon">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:layout_marginBottom">3dp</item>
+        <item name="android:background">@drawable/bg_tool_inactive</item>
+        <item name="android:padding">7dp</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="ToolbarToolLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/ui_text_primary</item>
+        <item name="android:textSize">@dimen/tool_label_text_size</item>
+        <item name="android:singleLine">true</item>
     </style>
 </resources>

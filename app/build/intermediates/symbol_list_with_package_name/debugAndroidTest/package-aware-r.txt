@@ -1,3 +1,0 @@
-com.chenjinxiang.doodleboard.test
-style WhiteBackgroundDialogTheme
-style WhiteBackgroundTheme

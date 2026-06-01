@@ -1,0 +1,41 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Android Build
+app/build/
+*.apk
+*.ap_
+*.dex
+
+# Android Studio
+*.iml
+.idea/
+.DS_Store
+
+# Build outputs
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Debug
+*.log
+
+# Generated files
+gen-out/
+
+# Claude
+.claude/settings.local.json
+.claude/commands/
+.claude/skills/
+.superpowers/
+
+# Temporary
+*.tmp
+*.bak
+openspec/
+tuyaban_svg_icons.zip
