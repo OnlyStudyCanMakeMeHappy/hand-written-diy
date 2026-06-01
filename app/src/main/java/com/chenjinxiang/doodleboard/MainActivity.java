@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.chenjinxiang.doodleboard.model.BrushManager;
+import com.chenjinxiang.doodleboard.projection.ProjectorController;
 import com.chenjinxiang.doodleboard.ui.ColorPickerDialog;
 import com.chenjinxiang.doodleboard.utils.FileSaver;
 import com.chenjinxiang.doodleboard.view.DrawingView;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private View[] colorSwatches;
     private MaterialButton[] sizeButtons;
+    private ProjectorController projectorController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,30 @@ public class MainActivity extends AppCompatActivity {
         updateColorSelection();
         updateSizeIndicators(brushManager.getWidth());
         updateButtonStates();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (projectorController != null) {
+            projectorController.start();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        if (projectorController != null) {
+            projectorController.stop();
+        }
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (projectorController != null) {
+            projectorController.destroy();
+        }
+        super.onDestroy();
     }
 
     private void initViews() {
@@ -77,6 +103,12 @@ public class MainActivity extends AppCompatActivity {
         inlineSizeSlider = findViewById(R.id.inlineSizeSlider);
 
         drawingView.setOnHistoryChangeListener(this::updateButtonStates);
+        projectorController = new ProjectorController(this, drawingView);
+        drawingView.setOnDrawingChangeListener(() -> {
+            if (projectorController != null) {
+                projectorController.invalidate();
+            }
+        });
     }
 
     private void setupToolbarButtons() {
@@ -168,12 +200,14 @@ public class MainActivity extends AppCompatActivity {
     private void undoDrawing() {
         drawingView.getHistoryManager().undo();
         drawingView.invalidate();
+        drawingView.notifyExternalDrawingChanged();
         updateButtonStates();
     }
 
     private void redoDrawing() {
         drawingView.getHistoryManager().redo();
         drawingView.invalidate();
+        drawingView.notifyExternalDrawingChanged();
         updateButtonStates();
     }
 

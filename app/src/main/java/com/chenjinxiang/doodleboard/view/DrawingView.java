@@ -13,6 +13,7 @@ import android.view.View;
 import com.chenjinxiang.doodleboard.model.BrushManager;
 import com.chenjinxiang.doodleboard.model.HistoryManager;
 import com.chenjinxiang.doodleboard.model.Stroke;
+import com.chenjinxiang.doodleboard.render.DoodleRenderer;
 
 /**
  * 绘图 View
@@ -28,9 +29,14 @@ public class DrawingView extends View {
         void onHistoryChanged();
     }
 
+    public interface OnDrawingChangeListener {
+        void onDrawingChanged();
+    }
+
     private OnHistoryChangeListener historyChangeListener;
-    private Paint paint;
+    private OnDrawingChangeListener drawingChangeListener;
     private Paint cursorPaint;
+    private DoodleRenderer renderer;
     private Path currentPath;
     private float lastX, lastY;
 
@@ -55,11 +61,7 @@ public class DrawingView extends View {
     private void init() {
         historyManager = new HistoryManager();
         brushManager = new BrushManager();
-
-        paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStyle(Paint.Style.STROKE);
+        renderer = new DoodleRenderer();
 
         // 初始化橡皮擦光标画笔
         cursorPaint = new Paint();
@@ -73,21 +75,15 @@ public class DrawingView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        // 1. 绘制白色背景
-        canvas.drawColor(Color.WHITE);
-
-        // 2. 绘制所有已保存的笔画
-        for (Stroke stroke : historyManager.getStrokes()) {
-            drawStroke(canvas, stroke);
-        }
-
-        // 3. 绘制当前正在画的笔画
-        if (currentPath != null) {
-            paint.setColor(brushManager.isEraser() ? Color.WHITE : brushManager.getColor());
-            paint.setAlpha(brushManager.isEraser() ? 255 : brushManager.getAlpha());
-            paint.setStrokeWidth(brushManager.getWidth());
-            canvas.drawPath(currentPath, paint);
-        }
+        renderer.render(
+            canvas,
+            historyManager.getStrokes(),
+            currentPath,
+            brushManager.getColor(),
+            brushManager.getAlpha(),
+            brushManager.getWidth(),
+            brushManager.isEraser()
+        );
 
         // 4. 绘制橡皮擦光标指示器
         if (brushManager.isEraser() && isTouching && cursorX >= 0 && cursorY >= 0) {
@@ -107,19 +103,6 @@ public class DrawingView extends View {
         }
     }
 
-    private void drawStroke(Canvas canvas, Stroke stroke) {
-        if (stroke.isEraser()) {
-            // MVP: 橡皮擦使用白色画笔模拟
-            paint.setColor(Color.WHITE);
-            paint.setAlpha(255);
-        } else {
-            paint.setColor(stroke.getColor());
-            paint.setAlpha(stroke.getAlpha());
-        }
-        paint.setStrokeWidth(stroke.getWidth());
-        canvas.drawPath(stroke.getPath(), paint);
-    }
-
     // Getter 方法
     public HistoryManager getHistoryManager() {
         return historyManager;
@@ -132,6 +115,7 @@ public class DrawingView extends View {
     public void clear() {
         historyManager.clear();
         invalidate();
+        notifyDrawingChanged();
         notifyHistoryChanged();
     }
 
@@ -140,6 +124,10 @@ public class DrawingView extends View {
      */
     public void setOnHistoryChangeListener(OnHistoryChangeListener listener) {
         this.historyChangeListener = listener;
+    }
+
+    public void setOnDrawingChangeListener(OnDrawingChangeListener listener) {
+        this.drawingChangeListener = listener;
     }
 
     /**
@@ -151,6 +139,36 @@ public class DrawingView extends View {
         }
     }
 
+    private void notifyDrawingChanged() {
+        if (drawingChangeListener != null) {
+            drawingChangeListener.onDrawingChanged();
+        }
+    }
+
+    public Path getCurrentPathSnapshot() {
+        return currentPath == null ? null : new Path(currentPath);
+    }
+
+    public int getCurrentRenderColor() {
+        return brushManager.getColor();
+    }
+
+    public int getCurrentRenderAlpha() {
+        return brushManager.getAlpha();
+    }
+
+    public float getCurrentRenderWidth() {
+        return brushManager.getWidth();
+    }
+
+    public boolean isCurrentRenderEraser() {
+        return brushManager.isEraser();
+    }
+
+    public void notifyExternalDrawingChanged() {
+        notifyDrawingChanged();
+    }
+
     /**
      * 获取画布内容的 Bitmap
      */
@@ -158,13 +176,15 @@ public class DrawingView extends View {
         Bitmap result = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(result);
 
-        // 绘制白色背景
-        canvas.drawColor(Color.WHITE);
-
-        // 绘制所有笔画
-        for (Stroke stroke : historyManager.getStrokes()) {
-            drawStroke(canvas, stroke);
-        }
+        renderer.render(
+            canvas,
+            historyManager.getStrokes(),
+            null,
+            brushManager.getColor(),
+            brushManager.getAlpha(),
+            brushManager.getWidth(),
+            brushManager.isEraser()
+        );
 
         return result;
     }
@@ -206,10 +226,8 @@ public class DrawingView extends View {
         lastX = x;
         lastY = y;
 
-        // 橡皮擦模式下需要立即刷新以显示光标
-        if (brushManager.isEraser()) {
-            invalidate();
-        }
+        invalidate();
+        notifyDrawingChanged();
     }
 
     private void handleActionMove(float x, float y) {
@@ -227,6 +245,7 @@ public class DrawingView extends View {
             lastY = y;
 
             invalidate(); // 实时刷新
+            notifyDrawingChanged();
         }
     }
 
@@ -251,6 +270,7 @@ public class DrawingView extends View {
 
             currentPath = null;
             invalidate();
+            notifyDrawingChanged();
             notifyHistoryChanged(); // 通知历史状态变化
         }
     }
